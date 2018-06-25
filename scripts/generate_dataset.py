@@ -63,16 +63,16 @@ UNK_ID = 3
 # For tokenization
 try:
   # UCS-4
-  EMOTICON = re.compile(u'(([\U00002600-\U000027BF])|([\U0001f300-\U0001f64F])|([\U0001f680-\U0001f6FF]))')
-except Exception, e:
+  EMOTICON = re.compile('(([\U00002600-\U000027BF])|([\U0001f300-\U0001f64F])|([\U0001f680-\U0001f6FF]))')
+except Exception as e:
   # UCS-2
-  EMOTICON = re.compile(u'(([\u2600-\u27BF])|([\uD83C][\uDF00-\uDFFF])|([\uD83D][\uDC00-\uDE4F])|([\uD83D][\uDE80-\uDEFF]))')
+  EMOTICON = re.compile('(([\u2600-\u27BF])|([\uD83C][\uDF00-\uDFFF])|([\uD83D][\uDC00-\uDE4F])|([\uD83D][\uDE80-\uDEFF]))')
 NOT_EMOTICON = re.compile(r'(\\U([0-9A-Fa-f]){8})|(\\u([0-9A-Fa-f]){4})')
 
 
 def sort_dict(dic):
   # Sort by alphabet
-  sorted_pair_list = sorted(dic.items(), key=operator.itemgetter(0))
+  sorted_pair_list = sorted(list(dic.items()), key=operator.itemgetter(0))
   # Sort by count
   sorted_pair_list = sorted(sorted_pair_list, key=operator.itemgetter(1), reverse=True)
   return sorted_pair_list
@@ -97,6 +97,7 @@ def tokenize(sentence):
   sentence = re.sub(r'@[a-zA-Z0-9._]+', '@username', sentence)  # change username
   sentence = EMOTICON.sub(r'@@byeongchang\1 ', sentence)
   sentence = sentence.encode('unicode-escape')  # for emoticons
+  sentence = sentence.decode('unicode-escape') 
   sentence = re.sub(r'@@byeongchang\\', '@@byeongchang', sentence)
   sentence = NOT_EMOTICON.sub(r' ', sentence)
   sentence = re.sub(r"[\-_]", r"-", sentence)  # incoporate - and _
@@ -123,25 +124,25 @@ def tokenize_all(train_json, test1_json, test2_json, key='caption'):
   test2_tokens = {}
 
   # Train data
-  for user_id, posts in tqdm(train_json.items(), ncols=70, desc="train data"):
+  for user_id, posts in tqdm(list(train_json.items()), ncols=70, desc="train data"):
     train_tokens[user_id] = {}
-    for post_id, post in posts.items():
+    for post_id, post in list(posts.items()):
       post_tokens = tokenize(post[key])
       train_tokens[user_id][post_id] = post_tokens
       for post_token in post_tokens:
         token_counter[post_token] += 1
 
   # Test1 data
-  for user_id, posts in tqdm(test1_json.items(), ncols=70, desc="test1 data"):
+  for user_id, posts in tqdm(list(test1_json.items()), ncols=70, desc="test1 data"):
     test1_tokens[user_id] = {}
-    for post_id, post in posts.items():
+    for post_id, post in list(posts.items()):
       post_tokens = tokenize(post[key])
       test1_tokens[user_id][post_id] = post_tokens
 
   # Test2 data
-  for user_id, posts in tqdm(test2_json.items(), ncols=70, desc="test2 data"):
+  for user_id, posts in tqdm(list(test2_json.items()), ncols=70, desc="test2 data"):
     test2_tokens[user_id] = {}
-    for post_id, post in posts.items():
+    for post_id, post in list(posts.items()):
       post_tokens = tokenize(post[key])
       test2_tokens[user_id][post_id] = post_tokens
 
@@ -156,10 +157,10 @@ def get_tfidf_words(train_tokens, test1_tokens, test2_tokens,
     counter = np.zeros([len(all_tokens), len(rev_vocab)])
     user_ids = []
     for i, (user_id, posts) in enumerate(
-        tqdm(all_tokens.items(), ncols=70, desc="preprocess")
+        tqdm(list(all_tokens.items()), ncols=70, desc="preprocess")
     ):
       user_ids.append(user_id)
-      for post_id, tokens in posts.items():
+      for post_id, tokens in list(posts.items()):
         token_ids = [rev_vocab.get(token, UNK_ID) for token in tokens]
         for token_id in token_ids:
           counter[i, token_id] += 1
@@ -224,16 +225,16 @@ def save_data(train_data, test1_data, test2_data, output_path, rev_vocab):
   """
   def _save_data(all_tokens, all_tfidf, fname):
     all_strings = []
-    for user_id, posts in all_tokens.items():
-      context_tokenids = map(
+    for user_id, posts in list(all_tokens.items()):
+      context_tokenids = list(map(
           str, [rev_vocab.get(token, UNK_ID) for token in all_tfidf[user_id]]
-      )
+      ))
       context_length = str(len(context_tokenids))
       context_string = '_'.join(context_tokenids)
-      for post_id, tokens in posts.items():
-        caption_tokenids = map(
+      for post_id, tokens in list(posts.items()):
+        caption_tokenids = list(map(
             str, [rev_vocab.get(token, UNK_ID) for token in tokens]
-        )
+        ))
         caption_length = str(len(caption_tokenids))
         caption_string = '_'.join(caption_tokenids)
         numpy_string = '%s_@_%s.npy' % (user_id, post_id)
@@ -242,7 +243,7 @@ def save_data(train_data, test1_data, test2_data, output_path, rev_vocab):
             numpy_string, context_length, caption_length,
             context_string, caption_string
         ])
-        all_strings.append((all_string + '\n', len(caption_tokenids)))
+        all_strings.append((all_string + '\n', len(list(caption_tokenids))))
 
     # sort by caption length
     all_strings = sorted(all_strings, key=lambda x: x[1])
@@ -267,8 +268,8 @@ def main():
       filename=None,
       level=logging.INFO,
       format="%(log_color)s[%(levelname)s:%(asctime)s]%(reset)s %(message)s",
-      datafmt="%Y-%m-%d %H:%M:%S"
-  )
+      datefmt="%Y-%m-%d %H:%M:%S"
+ )
 
   if not os.path.exists(CAPTION_OUTPUT_PATH):
     colorlog.info("Create directory %s" % (CAPTION_OUTPUT_PATH))

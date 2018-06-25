@@ -1,6 +1,6 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+
+
+
 
 
 import tensorflow as tf
@@ -12,7 +12,8 @@ from model.model import CSMN
 from scripts.generate_dataset import EOS_ID
 from utils.evaluator import Evaluator
 from termcolor import colored
-flags = tf.app.flags
+#flags = tf.app.flags
+from absl import flags
 
 flags.DEFINE_string('eval_dir', './checkpoints/eval',
                            """Directory where to write event logs.""")
@@ -46,7 +47,7 @@ def _load_vocabulary(vocab_fname):
 
 def _inject_summary(key_value):
     summary = tf.Summary()
-    for key, value in key_value.iteritems():
+    for key, value in key_value.items():
       summary.value.add(tag='%s' % (key), simple_value=value)
     return summary
 
@@ -95,15 +96,15 @@ def _eval_once(saver, summary_writer, argmaxs, answer_ids, vocab, rev_vocab,
         answer_list += answer
         step += 1
 
-      for i in xrange(len(desc_list)):
+      for i in range(len(desc_list)):
         desc = []
         answer = []
-        for k in xrange(len(desc_list[i])):
+        for k in range(len(desc_list[i])):
           token_id = desc_list[i][k]
           if token_id == EOS_ID:
             break
           desc.append(rev_vocab[token_id])
-        for k in xrange(len(answer_list[i])):
+        for k in range(len(answer_list[i])):
           token_id = answer_list[i][k]
           if token_id == EOS_ID:
             break
@@ -152,7 +153,7 @@ def evaluate():
     tower_argmax = []
     # Calculate the gradients for each model tower.
     with tf.variable_scope(tf.get_variable_scope()) as scope:
-      for i in xrange(FLAGS.num_gpus):
+      for i in range(FLAGS.num_gpus):
         with tf.device('/gpu:%d' % i):
           with tf.name_scope('%s_%d' % (TOWER_NAME, i)) as scope:
             inputs = [

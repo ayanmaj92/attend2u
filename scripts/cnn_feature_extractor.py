@@ -122,21 +122,21 @@ def main(_):
         threads = tf.train.start_queue_runners(coord=coord)
         try:
           for step in tqdm(
-              xrange(len(filenames) / FLAGS.batch_size + 1), ncols=70
+              range(len(filenames) // FLAGS.batch_size + 1), ncols=70
           ):
             if coord.should_stop():
               break
             file_names, pool5_value = sess.run([keys, pool5])
-            for i in xrange(len(file_names)):
+            for i in range(len(file_names)):
               np.save(
                   os.path.join(
                       FLAGS.output_dir,
-                      os.path.basename(file_names[i]) + '.npy'
+                      str(os.path.basename(file_names[i]), 'utf-8') + str('.npy')
                   ),
                   pool5_value[i].astype(np.float32)
               )
         except tf.errors.OutOfRangeError:
-          print "Done feature extraction -- epoch limit reached"
+          print("Done feature extraction -- epoch limit reached")
         finally:
           coord.request_stop()
 

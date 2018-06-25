@@ -10,9 +10,10 @@ from datetime import datetime
 import time
 import numpy as np
 import os
-flags = tf.app.flags
+from absl import flags
+#flags = tf.app.flags
 
-flags.DEFINE_integer("num_gpus", 4, "Number of gpus to use")
+flags.DEFINE_integer("num_gpus", 1, "Number of gpus to use")
 flags.DEFINE_string('train_dir', './checkpoints',
                            """Directory where to write event logs """
                            """and checkpoint.""")
@@ -26,6 +27,8 @@ MOVING_AVERAGE_DECAY = 0.9999     # The decay to use for the moving average.
 NUM_EPOCHS_PER_DECAY = 8.0      # Epochs after which learning rate decays.
 LEARNING_RATE_DECAY_FACTOR = 0.8  # Learning rate decay factor.
 TOWER_NAME = 'tower'
+
+os.environ["CUDA_VISIBLE_DEVICES"] = '0'
 
 def _tower_loss(inputs, scope):
   net = CSMN(inputs, ModelConfig(FLAGS))
@@ -78,7 +81,7 @@ def train():
         filename=None,
         level=logging.INFO,
         format="%(log_color)s[%(levelname)s:%(asctime)s]%(reset)s %(message)s",
-        datafmt="%Y-%m-%d %H:%M:%S"
+        datefmt="%Y-%m-%d %H:%M:%S"
     )
 
     gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.95)
@@ -115,7 +118,7 @@ def train():
       # Calculate the gradients for each model tower.
       tower_grads = []
       with tf.variable_scope(tf.get_variable_scope()) as scope:
-        for i in xrange(FLAGS.num_gpus):
+        for i in range(FLAGS.num_gpus):
           with tf.device('/gpu:%d' % i):
             with tf.name_scope('%s_%d' % (TOWER_NAME, i)) as scope:
               # Calculate the loss for one tower of the CIFAR model. This function
@@ -176,7 +179,7 @@ def train():
       tf.train.start_queue_runners(sess=sess)
       summary_writer = tf.summary.FileWriter(FLAGS.train_dir, sess.graph)
 
-      for step in xrange(FLAGS.max_steps):
+      for step in range(FLAGS.max_steps):
         start_time = time.time()
         _, loss_value = sess.run([apply_gradient_op, loss])
         duration = time.time() - start_time
@@ -190,8 +193,8 @@ def train():
           format_str = ('%s: step %d, loss = %.2f (%.1f examples/sec; %.3f '
                         'sec/batch)')
           c_g_step = int(global_step.eval(session=sess))
-          print (format_str % (datetime.now(), c_g_step, loss_value,
-                               examples_per_sec, sec_per_batch))
+          print((format_str % (datetime.now(), c_g_step, loss_value,
+                               examples_per_sec, sec_per_batch)))
 
         if (step + 1)% 25 == 0:
           summary_str = sess.run(summary_op)

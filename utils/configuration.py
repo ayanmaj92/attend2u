@@ -1,6 +1,7 @@
 import pprint
 import os
 import json
+import six
 
 import colorlog
 
@@ -24,7 +25,7 @@ class BaseConfig(object):
     if os.path.exists(fname):
       with open(fname, 'r') as f:
         contents = json.load(f)
-      for key, value in contents.iteritems():
+      for key, value in six.iteritems(contents):
         setattr(self, key, value)
 
 

@@ -4,7 +4,7 @@ import os
 import json
 import logging
 from collections import Counter
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 from tqdm import tqdm
 import colorlog
@@ -48,10 +48,10 @@ UNK_ID = 3
 # For tokenization
 try:
   # UCS-4
-  EMOTICON = re.compile(u'(([\U00002600-\U000027BF])|([\U0001f300-\U0001f64F])|([\U0001f680-\U0001f6FF]))')
-except Exception, e:
+  EMOTICON = re.compile('(([\U00002600-\U000027BF])|([\U0001f300-\U0001f64F])|([\U0001f680-\U0001f6FF]))')
+except Exception as e:
   # UCS-2
-  EMOTICON = re.compile(u'(([\u2600-\u27BF])|([\uD83C][\uDF00-\uDFFF])|([\uD83D][\uDC00-\uDE4F])|([\uD83D][\uDE80-\uDEFF]))')
+  EMOTICON = re.compile('(([\u2600-\u27BF])|([\uD83C][\uDF00-\uDFFF])|([\uD83D][\uDC00-\uDE4F])|([\uD83D][\uDE80-\uDEFF]))')
 NOT_EMOTICON = re.compile(r'(\\U([0-9A-Fa-f]){8})|(\\u([0-9A-Fa-f]){4})')
 
 # Regular expressions used to tokenize
@@ -63,7 +63,7 @@ _HREF_RE = re.compile('<a href="(.*?)".*>(.*)</a>')
 
 def sort_dict(dic):
   # Sort by alphabet
-  sorted_pair_list = sorted(dic.items(), key=operator.itemgetter(0))
+  sorted_pair_list = sorted(list(dic.items()), key=operator.itemgetter(0))
   # Sort by count
   sorted_pair_list = sorted(sorted_pair_list, key=operator.itemgetter(1), reverse=True)
   return sorted_pair_list
@@ -82,7 +82,7 @@ def tokenize(sentence):
     sentence = ' '.join(sentence)
 
   # Change separator to space
-  sentence = urllib.unquote_plus(sentence)
+  sentence = urllib.parse.unquote_plus(sentence)
 
   # Remove https
   sentence = _HREF_RE.sub("", sentence)
@@ -148,7 +148,7 @@ def tokenize_all(train_json, test_json, key='caption'):
   test_tokens = {}
 
   # Train data
-  for user_id, posts in tqdm(train_json.items(), ncols=70, desc="train data"):
+  for user_id, posts in tqdm(list(train_json.items()), ncols=70, desc="train data"):
     train_tokens[user_id] = {}
     for post in posts:
       title = tokenize(post['title'])
@@ -165,7 +165,7 @@ def tokenize_all(train_json, test_json, key='caption'):
         token_counter[post_token] += 1
 
   # Test data
-  for user_id, posts in tqdm(test_json.items(), ncols=70, desc="train data"):
+  for user_id, posts in tqdm(list(test_json.items()), ncols=70, desc="train data"):
     test_tokens[user_id] = {}
     for post in posts:
       title = tokenize(post['title'])
@@ -188,10 +188,10 @@ def get_tfidf_words(train_tokens, test_tokens, vocab, rev_vocab):
     counter = np.zeros([len(all_tokens), len(rev_vocab)])
     user_ids = []
     for i, (user_id, posts) in enumerate(
-        tqdm(all_tokens.items(), ncols=70, desc="preprocess")
+        tqdm(list(all_tokens.items()), ncols=70, desc="preprocess")
     ):
       user_ids.append(user_id)
-      for post_id, tokens in posts.items():
+      for post_id, tokens in list(posts.items()):
         token_ids = [rev_vocab.get(token, UNK_ID) for token in tokens]
         for token_id in token_ids:
           counter[i, token_id] += 1
@@ -253,16 +253,16 @@ def save_data(train_data, test_data, output_path, rev_vocab):
   """
   def _save_data(all_tokens, all_tfidf, fname):
     all_strings = []
-    for user_id, posts in all_tokens.items():
-      context_tokenids = map(
+    for user_id, posts in list(all_tokens.items()):
+      context_tokenids = list(map(
           str, [rev_vocab.get(token, UNK_ID) for token in all_tfidf[user_id]]
-      )
+      ))
       context_length = str(len(context_tokenids))
       context_string = '_'.join(context_tokenids)
-      for post_id, tokens in posts.items():
-        caption_tokenids = map(
+      for post_id, tokens in list(posts.items()):
+        caption_tokenids = list(map(
             str, [rev_vocab.get(token, UNK_ID) for token in tokens]
-        )
+        ))
         caption_length = str(len(caption_tokenids))
         caption_string = '_'.join(caption_tokenids)
         numpy_string = '%s_%s.npy' % (user_id, post_id)

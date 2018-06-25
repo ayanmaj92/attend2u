@@ -1,6 +1,6 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+
+
+
 
 import os
 
@@ -26,10 +26,10 @@ flags.DEFINE_integer("max_context_length", 60,
 flags.DEFINE_integer("max_output_length", 16,
     "User contex max length default [60]"
 )
-flags.DEFINE_integer('batch_size', 200,
+flags.DEFINE_integer('batch_size', 100,
     """Number of examples to process in a batch."""
 )
-flags.DEFINE_integer('vocab_size', 40000,
+flags.DEFINE_integer('vocab_size', 10000,
     """Number of vocab."""
 )
 flags.DEFINE_integer('word_emb_dim', 512,
@@ -88,19 +88,20 @@ def numpy_read_func(batch_path):
   np_list = []
   for i in range(len(batch_path)):
     np_list.append(
-        np.load(os.path.join(FLAGS.img_data_dir, batch_path[i]))
+        np.load(os.path.join(FLAGS.img_data_dir, str(batch_path[i], 'utf-8')))
     )
   return np.array(np_list)
 
 def token_split_func(batch_token, max_length, cap=None):
   all_ids = np.zeros([FLAGS.batch_size, max_length], dtype=np.int32)
   for i in range(FLAGS.batch_size):
-    if "_" in batch_token[i]:
-      valid_ids = map(int, batch_token[i].split('_'))[:max_length]
-    elif len(batch_token[i]) == 0:
+    batch_token_string = str(batch_token[i], 'utf-8')
+    if "_" in batch_token_string:
+      valid_ids = list(map(int, batch_token_string.split('_')))[:max_length]
+    elif len(batch_token_string) == 0:
       valid_ids = []
     else:
-      valid_ids = [int(batch_token[i])]
+      valid_ids = [int(batch_token_string)]
     if cap:
       valid_ids = valid_ids[:max_length-1]
       if cap == 'caption' :
@@ -186,7 +187,7 @@ def read_numpy_format_and_label(filename_queue):
 def chunks(data, batch_size):
   chunk_l = []
   N = int(len(data)/batch_size)
-  for i in xrange(N):
+  for i in range(N):
     chunk_l.append(data[i*batch_size:(i+1)*batch_size])
   chunk_l.append(data[(i+1)*batch_size:])
   return chunk_l
