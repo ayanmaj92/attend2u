@@ -1,8 +1,3 @@
-
-
-
-
-
 import tensorflow as tf
 import colorlog
 import time

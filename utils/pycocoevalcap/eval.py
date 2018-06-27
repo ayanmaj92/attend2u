@@ -12,7 +12,7 @@ class COCOEvalCap:
         self.imgToEval = {}
         self.coco = coco
         self.cocoRes = cocoRes
-        self.params = {'image_id': cocoRes.getImgIds()}
+        self.params = {'image_id': coco.getImgIds()}
 
     def evaluate(self):
         imgIds = self.params['image_id']
@@ -45,18 +45,17 @@ class COCOEvalCap:
         # =================================================
         # Compute scores
         # =================================================
-        eval = {}
         for scorer, method in scorers:
             print('computing %s score...'%(scorer.method()))
             score, scores = scorer.compute_score(gts, res)
             if type(method) == list:
                 for sc, scs, m in zip(score, scores, method):
                     self.setEval(sc, m)
-                    self.setImgToEvalImgs(scs, imgIds, m)
+                    self.setImgToEvalImgs(scs, gts.keys(), m)
                     print("%s: %0.3f"%(m, sc))
             else:
                 self.setEval(score, method)
-                self.setImgToEvalImgs(scores, imgIds, method)
+                self.setImgToEvalImgs(scores, gts.keys(), method)
                 print("%s: %0.3f"%(method, score))
         self.setEvalImgs()
 
@@ -71,4 +70,4 @@ class COCOEvalCap:
             self.imgToEval[imgId][method] = score
 
     def setEvalImgs(self):
-        self.evalImgs = [eval for imgId, eval in list(self.imgToEval.items())]
+        self.evalImgs = [eval for imgId, eval in self.imgToEval.items()]

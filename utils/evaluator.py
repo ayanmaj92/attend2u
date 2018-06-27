@@ -1,7 +1,3 @@
-
-
-
-
 import colorlog
 import pprint
 
