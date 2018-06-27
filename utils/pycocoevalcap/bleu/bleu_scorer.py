@@ -239,7 +239,7 @@ class BleuScorer(object):
                     bleu_list[k][-1] *= math.exp(1 - 1/ratio)
 
             if verbose > 1:
-                print(comps, reflen)
+                pass #print(comps, reflen)
 
         totalcomps['reflen'] = self._reflen
         totalcomps['testlen'] = self._testlen
@@ -256,8 +256,8 @@ class BleuScorer(object):
                 bleus[k] *= math.exp(1 - 1/ratio)
 
         if verbose > 0:
-            print(totalcomps)
-            print("ratio:", ratio)
+            pass #print(totalcomps)
+            #print("ratio:", ratio)
 
         self._score = bleus
         return self._score, bleu_list
