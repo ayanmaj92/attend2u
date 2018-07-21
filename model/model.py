@@ -385,6 +385,8 @@ class CSMN(object):
 
       h_pool = tf.concat(pooled_outputs, 3)
       h_pool_flat = tf.reshape(h_pool, [-1, self.num_channels_total])
+
+      #h_pool_flat = tf.layers.dropout(h_pool_flat,rate=0.4, training=self.is_training)
       with arg_scope([layers.fully_connected],
               num_outputs = self.num_channels_total,
               activation_fn = tf.nn.relu,
@@ -403,6 +405,8 @@ class CSMN(object):
                 reuse = False,
                 scope="Wo"
         )
+        output = tf.layers.dropout(output,rate=0.5, training=self.is_training)
+        
 
       output_words_array_ = output_words_array_.write(iterator_, output)
 
@@ -453,6 +457,7 @@ class CSMN(object):
     sequence_outputs = tf.transpose(sequence_outputs, perm=[1, 0, 2])
     sequence_outputs = tf.reshape(sequence_outputs, [-1, self.num_channels_total])
     final_outputs = tf.matmul(sequence_outputs, self.Wf) + self.bf
+    #final_outputs = tf.layers.dropout(inputs=final_outputs, rate=0.3, training=self.is_training)
     prob = tf.nn.softmax(final_outputs)
     self.prob = tf.reshape(prob, [self.batch_size, -1, self.vocab_size])
     self.argmax = tf.argmax(self.prob, 2)

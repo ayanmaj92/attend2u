@@ -12,7 +12,9 @@ from model.model import CSMN
 from scripts.generate_dataset import EOS_ID
 from utils.evaluator import Evaluator
 from termcolor import colored
-flags = tf.app.flags
+#flags = tf.app.flags
+from absl import flags
+import os
 
 flags.DEFINE_string('eval_dir', './checkpoints/eval',
                            """Directory where to write event logs.""")
@@ -27,13 +29,15 @@ flags.DEFINE_string(
 flags.DEFINE_integer("num_gpus", 4, "Number of gpus to use")
 flags.DEFINE_integer('eval_interval_secs', 60 * 1,
                             """How often to run the eval.""")
-flags.DEFINE_boolean('run_once', False,
+flags.DEFINE_boolean('run_once', True,
                          """Whether to run eval only once.""")
 TOWER_NAME = 'tower'
 
 
 
 FLAGS = flags.FLAGS
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "6"
 
 def _load_vocabulary(vocab_fname):
   with open(vocab_fname, 'r') as f:
@@ -114,8 +118,9 @@ def _eval_once(saver, summary_writer, argmaxs, answer_ids, vocab, rev_vocab,
       colorlog.info(
           colored("Validation Output Example (%s)" % global_step, 'green')
       )
+      print("Length of desc_token_list=",len(desc_token_list))
       for i, (desc, answer) in enumerate(
-          zip(desc_token_list[:15], answer_token_list[:15])
+          zip(desc_token_list, answer_token_list) #CHANGED HERE!!! was [:15]
       ):
         print("%d." % (i))
         print(' '.join(answer))

@@ -10,7 +10,8 @@ from datetime import datetime
 import time
 import numpy as np
 import os
-flags = tf.app.flags
+#flags = tf.app.flags
+from absl import flags
 
 flags.DEFINE_integer("num_gpus", 4, "Number of gpus to use")
 flags.DEFINE_string('train_dir', './checkpoints',
@@ -18,7 +19,7 @@ flags.DEFINE_string('train_dir', './checkpoints',
                            """and checkpoint.""")
 flags.DEFINE_float("init_lr", 0.001, "initial learning rate [0.01]")
 flags.DEFINE_float("max_grad_norm", 100, "clip gradients to this norm [100]")
-flags.DEFINE_integer("max_steps", 500000, "number of steps to use during training [500000]")
+flags.DEFINE_integer("max_steps", 200000, "number of steps to use during training [500000]")
 
 FLAGS = flags.FLAGS
 # Constants describing the training process.
@@ -26,6 +27,8 @@ MOVING_AVERAGE_DECAY = 0.9999     # The decay to use for the moving average.
 NUM_EPOCHS_PER_DECAY = 8.0      # Epochs after which learning rate decays.
 LEARNING_RATE_DECAY_FACTOR = 0.8  # Learning rate decay factor.
 TOWER_NAME = 'tower'
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "0,7"
 
 def _tower_loss(inputs, scope):
   net = CSMN(inputs, ModelConfig(FLAGS))
@@ -111,6 +114,7 @@ def train():
 
       # Create an optimizer that performs gradient descent.
       opt = tf.train.AdamOptimizer(lr)
+      #opt = tf.train.MomentumOptimizer(lr,momentum=0.7,use_nesterov=True)
 
       # Calculate the gradients for each model tower.
       tower_grads = []
@@ -171,7 +175,8 @@ def train():
       ckpt = tf.train.get_checkpoint_state(FLAGS.train_dir)
       if ckpt and ckpt.model_checkpoint_path:
         # Restores from checkpoint
-        saver.restore(sess, ckpt.model_checkpoint_path)
+        #saver.restore(sess, ckpt.model_checkpoint_path)
+        pass
       # Start the queue runners.
       tf.train.start_queue_runners(sess=sess)
       summary_writer = tf.summary.FileWriter(FLAGS.train_dir, sess.graph)
@@ -182,18 +187,18 @@ def train():
         duration = time.time() - start_time
         assert not np.isnan(loss_value), 'Model diverged with loss = NaN'
 
-        if (step + 1)% 10 == 0:
+        if (step + 1)% 100 == 0:
           num_examples_per_step = FLAGS.batch_size * FLAGS.num_gpus
           examples_per_sec = num_examples_per_step / duration
           sec_per_batch = duration / FLAGS.num_gpus
 
-          format_str = ('%s: step %d, loss = %.2f (%.1f examples/sec; %.3f '
+          format_str = ('%s: step %d, loss = %.8f (%.1f examples/sec; %.3f '
                         'sec/batch)')
           c_g_step = int(global_step.eval(session=sess))
           print (format_str % (datetime.now(), c_g_step, loss_value,
                                examples_per_sec, sec_per_batch))
 
-        if (step + 1)% 25 == 0:
+        if (step + 1)% 500 == 0:
           summary_str = sess.run(summary_op)
           summary_writer.add_summary(summary_str, c_g_step)
 

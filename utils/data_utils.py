@@ -35,10 +35,10 @@ flags.DEFINE_integer('vocab_size', 40000,
 flags.DEFINE_integer('word_emb_dim', 512,
     """Dimensions of word embeddings."""
 )
-flags.DEFINE_integer('mem_dim', 1024,
+flags.DEFINE_integer('mem_dim', 2048,
     """Dimensions of memories."""
 )
-flags.DEFINE_integer('num_channels', 300,
+flags.DEFINE_integer('num_channels', 400,
     """Number of channels of memory cnn."""
 )
 
@@ -53,7 +53,8 @@ FLAGS = flags.FLAGS
 
 root_path = "/"
 train_fpath = 'train.txt'
-val_fpath = 'test1.txt'
+#val_fpath = 'test1.txt'
+val_fpath = 'test2.txt'
 
 
 def _generate_data_and_label_batch(inputs, min_queue_examples,
@@ -209,6 +210,8 @@ def enqueue(eval_data):
     filenames = mergers(chunk_list)
   else:
     filenames = [l.strip() for l in open(os.path.join(FLAGS.data_dir, val_fpath)).readlines()]
+    print("FILE_NAMES:",len(filenames))
+    print(filenames[-50:])
   num_examples_per_epoch = len(filenames)
 
   # Create a queue that produces the filenames to read.
