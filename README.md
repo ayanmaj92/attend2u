@@ -2,6 +2,8 @@
 
 ![alt tag](./assets/attend2u_cvpr.png)
 
+#### NOTE THIS WORK IS BASED ON THE WORK MENTIONED BELOW. OUR GOAL WAS TO TRY AND MODIFY AND ANALYSE THE MODEL.
+
 This project hosts the code for our **CVPR 2017** paper and **TPAMI 2018** paper.
 
 - Cesc Chunseong Park, Byeongchang Kim and Gunhee Kim. *Attend to You*: Personalized Image Captioning with Context Sequence Memory Networks. In *CVPR*, 2017. (**Spotlight**) [[arxiv]](https://arxiv.org/abs/1704.06485)
@@ -12,27 +14,8 @@ For a query image, we aim to generate a descriptive sentence, accounting for pri
 As applications of personalized image captioning, we tackle two post automation tasks: hashtag prediction and post generation, on our newly collected Instagram dataset, consisting of 1.1M posts from 6.3K users.
 We propose a novel captioning model named Context Sequence Memory Network (CSMN).
 
-## Reference
+#### Beyond the previous work, we try increasing the model parameters and dropout regularization.
 
-If you use this code or dataset as part of any published research, please refer one of the following papers.
-
-```
-@inproceedings{attend2u:2017:CVPR,
-    author    = {Park, Cesc Chunseong and Kim, Byeongchang and Kim, Gunhee},
-    title     = "{Attend to You: Personalized Image Captioning with Context Sequence Memory Networks}",
-    booktitle = {CVPR},
-    year      = 2017
-}
-```
-
-```
-@inproceedings{attend2u:2018:TPAMI,
-    author    = {Park, Cesc Chunseong and Kim, Byeongchang and Kim, Gunhee},
-    title     = "{Towards Personalized Image Captioning via Multimodal Memory Networks}",
-    booktitle = {IEEE TPAMI},
-    year      = 2018
-}
-```
 
 ## Running Code
 
@@ -226,6 +209,10 @@ Here are (little bit wrong but) interesting hashtag generation examples:
 
 ## Acknowledgement
 
+We thank the authors of the original paper and work: [Cesc Chunseong Park](http://cesc-park.github.io/), [Byeongchang Kim](http://vision.snu.ac.kr/people/byeongchangkim.html) and [Gunhee Kim](http://vision.snu.ac.kr/~gunhee/)
+
+[Vision and Learning Lab](http://vision.snu.ac.kr/) @ Computer Science and Engineering, Seoul National University, Seoul, Korea
+
 We implement our model using [tensorflow](http://tensorflow.org) package. Thanks for tensorflow developers. :)
 
 We also thank Instagram for their API and Instagram users for their valuable posts.
@@ -238,9 +225,7 @@ We are further thankful to Hyunjae Woo for help with YFCC100M dataset preprocess
 
 ## Authors
 
-[Cesc Chunseong Park](http://cesc-park.github.io/), [Byeongchang Kim](http://vision.snu.ac.kr/people/byeongchangkim.html) and [Gunhee Kim](http://vision.snu.ac.kr/~gunhee/)
-
-[Vision and Learning Lab](http://vision.snu.ac.kr/) @ Computer Science and Engineering, Seoul National University, Seoul, Korea
+Ayan Majumdar, Rahul Mohideen (Saarland University)
 
 ## License
 
