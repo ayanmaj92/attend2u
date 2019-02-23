@@ -2,7 +2,7 @@
 
 ![alt tag](./assets/attend2u_cvpr.png)
 
-NOTE THIS WORK IS BASED ON THE WORK MENTIONED BELOW. OUR GOAL WAS TO TRY AND MODIFY AND ANALYSE THE MODEL.
+#### NOTE THIS WORK IS BASED ON THE WORK MENTIONED BELOW. OUR GOAL WAS TO TRY AND MODIFY AND ANALYSE THE MODEL.
 
 This project hosts the code for our **CVPR 2017** paper and **TPAMI 2018** paper.
 
@@ -14,7 +14,7 @@ For a query image, we aim to generate a descriptive sentence, accounting for pri
 As applications of personalized image captioning, we tackle two post automation tasks: hashtag prediction and post generation, on our newly collected Instagram dataset, consisting of 1.1M posts from 6.3K users.
 We propose a novel captioning model named Context Sequence Memory Network (CSMN).
 
-# Beyond the previous work, we try increasing the model parameters and dropout regularization.
+#### Beyond the previous work, we try increasing the model parameters and dropout regularization.
 
 
 ## Running Code
